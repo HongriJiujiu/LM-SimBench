@@ -11,10 +11,53 @@ benchmark/
   requirements.txt          # Pinned-style dependencies for quick setup
   src/
     lm_simbench/            # Python package: metrics and task helpers
+      __init__.py
+      component.py          # Component-level latency metrics
+      metrics.py            # Shared metric helpers
+      ranking.py            # Configuration ranking / regret
+      system.py             # System-level iteration time & memory
   scripts/
     preprocessing/          # Profiler → dataset CSV pipeline (numbered steps)
+      01_filter_profiler_data.py
+      02_extract_matrix_operators.py
+      03_extract_operator_categories.py
+      04_extract_step_trace_time.py
+      05_extract_peak_memory.py
+      06_extract_iteration_time.py
+      07_extract_communication.py
+      08_normalize_layout.py
+      09_rename_rank_dirs.py
+      10_normalize_csv_headers.py
     launch/                 # Sanitized MindSpeed-LLM training launch examples (*.sh)
-  docx/                     # Paper-style figure scripts (matplotlib)
+      gemma2_9b_8k.sh
+      gemma2_27b_8k.sh
+      glm4_9b_8k.sh
+      internlm25_1point8b_32k.sh
+      internlm25_20b_32k.sh
+      internlm25_7b_32k.sh
+      internlm3_8b_8k.sh
+      mistral_7b_32k.sh
+      phi35_mini_4k.sh
+      phi35_moe_4k.sh
+      qwen15_1.8b_8k.sh
+      qwen15_4b_8k.sh
+      qwen25_0point5_32k.sh
+      qwen25_14b_8k.sh
+      qwen25_32b_32k.sh
+      qwen25_3b_32k.sh
+      qwen25_72b_8k.sh
+      qwen25_7b_8k.sh
+      qwen2_1.5b_4k.sh
+      qwen3_0.6b_4k.sh
+      qwen3_1.7b_4k.sh
+      qwen3_30b_a3b_4k.sh
+      qwen3_8b_4k.sh
+  docx/                     # Paper-style figure scripts (matplotlib); see docx/README.md
+    paths.py
+    requirements-plot.txt
+    case_1/
+    case_2/
+    matrix_operator_prediction/
 ```
 
 ## Installation (Python package)
@@ -36,7 +79,7 @@ Dependencies: see `requirements.txt` or `pyproject.toml` (`numpy`, `pandas`, `sc
 
 ## Preprocessing pipeline
 
-See [`scripts/preprocessing/README.md`](scripts/preprocessing/README.md) for input/output directories, step order (`01_` … `10_`), and CLI options.
+See [`scripts/preprocessing/README.md`](scripts/preprocessing/README.md) for step order (`01_` … `10_`) and CLI entry points. Run each script with `--help` for input/output paths and options.
 
 ## Launch scripts
 

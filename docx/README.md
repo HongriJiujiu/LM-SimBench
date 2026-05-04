@@ -38,28 +38,34 @@ Optional overrides:
 
 | Path | Purpose |
 |------|---------|
-| `paths.py` | `repo_root()`, `dataset_root()`, figure-output helpers |
-| `case_1/` | `qwen3_0.6b_4k` step time, peak-memory heatmap, step-trace breakdown |
-| `case_2/` | `qwen25_32b_32k` memory lines, communication breakdown, matrix-operator bubble, per-rank stacked traces |
-| `matrix_operator_prediction/` | Predicted-vs-actual matrix latency plots |
+| `paths.py` | `repo_root()`, `dataset_root()`, `figures_case1_dir()`, `figures_case2_dir()` |
+| `case_1/` | `plot_step_time_case1.py`, `plot_peak_memory_heatmap_qwen3_0p6b_4k.py`, `plot_step_trace_breakdown_qwen3_0.6b_4k.py` (`qwen3_0.6b_4k`) |
+| `case_2/` | `plot_peak_memory_lines_qwen25_32b_32k.py`, `plot_comm_time_donut.py`, `plot_matrix_operator_bubble.py`, `plot_step_trace_stacked_rank_breakdown.py` (`qwen25_32b_32k`) |
+| `matrix_operator_prediction/` | `plot_prediction_effect.py` — predicted vs. actual matrix latency |
 
 ## Figure outputs
 
-Generated files are written under the **repository root** (unless you customize code):
+Case scripts resolve output directories via `paths.py` under the **repository root**:
 
 | Directory | Contents |
 |-----------|----------|
-| `<repo_root>/case_1/figures/` | Step time bars, peak-memory heatmaps, step-trace breakdown (PNG/PDF per script) |
-| `<repo_root>/case_2/figures/` | Peak memory curves, communication bar/inset, matrix-operator bubble |
-| `<repo_root>/case_2/figures/rank_step_breakdown/` | Per-config stacked rank plots |
-| `matrix_operator_prediction/figures/` | `prediction_effect_*`, `prediction_metrics_*` |
+| `<repo_root>/case_1/outputs/` | Step time bars, peak-memory heatmaps, step-trace breakdown (PNG/PDF per script) |
+| `<repo_root>/case_2/outputs/` | Peak memory curves, communication donut, matrix-operator bubble, stacked rank traces |
 
-Run scripts from their folder, for example:
+Matrix prediction figures are written next to the script:
+
+| Directory | Contents |
+|-----------|----------|
+| `benchmark/docx/matrix_operator_prediction/figures/` | `prediction_effect_*`, `prediction_metrics_*` |
+
+Run case scripts from `benchmark/docx` so `paths` resolves correctly:
 
 ```bash
 cd benchmark/docx/case_1
 python plot_step_time_case1.py
 ```
+
+(Same pattern for `case_2/` scripts.)
 
 ## `plot_step_time_case1.py` note
 
