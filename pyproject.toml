@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lm-simbench"
+version = "0.1.0"
+description = "LM-SimBench: evaluation metrics and preprocessing helpers for LLM training profiling data."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "CC-BY-SA-4.0" }
+authors = [{ name = "LM-SimBench contributors" }]
+keywords = ["llm", "distributed-training", "profiling", "benchmark", "performance-modeling"]
+classifiers = [
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+  "numpy>=1.20",
+  "pandas>=1.3",
+  "scipy>=1.7",
+]
+
+[project.urls]
+Homepage = "https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench"
+# Source = "https://github.com/<org>/<repo>"  # set when the GitHub URL is public
+
+[tool.setuptools.packages.find]
+where = ["src"]

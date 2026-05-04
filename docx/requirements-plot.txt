@@ -1,0 +1,3 @@
+# Extra dependencies for benchmark/docx/ plotting scripts (install after benchmark/requirements.txt)
+matplotlib>=3.5
+seaborn>=0.12
