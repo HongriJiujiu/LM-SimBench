@@ -97,10 +97,20 @@ Import symbols from `lm_simbench` after installation or `PYTHONPATH` setup; see 
 
 Case-study plotting scripts live under [`docx/`](docx/README.md). Install extra deps with `pip install -r docx/requirements-plot.txt`.
 
-## Citation
+## Maintenance Plan
 
-If you use this code or the dataset, cite the Hugging Face dataset card and your paper as appropriate. A BibTeX example is provided on the [dataset page](https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench).
+LM-SimBench will be maintained as a versioned benchmark resource. We will:
+
+- preserve released versions for reproducibility;
+- document major updates in a changelog;
+- update the benchmark scripts when dataset fields or task definitions change;
+- fix reported issues related to data loading, inconsistent fields, or missing metadata;
+- add new model families, parallel configurations, and profiling traces in future releases when available.
+
+Users can report issues or request clarifications through GitHub Issues.
 
 ## License
 
-Match the dataset license (e.g. CC BY-SA 4.0) and your repository’s `LICENSE` file.
+The source code, preprocessing scripts, and benchmark examples in this repository are released under the Apache-2.0 license.
+
+The LM-SimBench datasets are released separately under the CC BY 4.0 license on Hugging Face. The dataset license applies to the processed profiling tables, raw profiling traces, metadata, and dataset documentation.
