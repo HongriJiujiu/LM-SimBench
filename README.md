@@ -53,18 +53,6 @@ python -c "from lm_simbench import mae, strategy_ranking_summary"
 
 安装或配置 `PYTHONPATH` 后从 `lm_simbench` 导入；细节见 `src/lm_simbench/` 内注释。
 
-## 维护计划
-
-LM-SimBench 作为有版本记录的评测资源维护，我们将：
-
-- 保留已发布版本以便复现；
-- 在变更日志中记录重大更新；
-- 当数据集字段或任务定义变化时更新 benchmark 脚本；
-- 修复与数据加载、字段不一致或元数据缺失相关的问题；
-- 在后续版本中在条件允许时扩展模型族、并行配置与 profiling 轨迹。
-
-欢迎在 GitHub Issues 中报告问题或提出澄清需求。
-
 ---
 
 ## 论文图表脚本（`docx/`）
@@ -74,8 +62,6 @@ LM-SimBench 作为有版本记录的评测资源维护，我们将：
 ```bash
 pip install -r docx/requirements-plot.txt
 ```
-
-更细的目录说明见 [`docx/README.md`](docx/README.md)。
 
 以下命令均假设当前工作目录为 **`benchmark/`**（即本 README 所在目录）。所有脚本使用相对路径，可在任意机器上克隆后直接运行（在数据已就位的前提下）。
 
@@ -141,5 +127,4 @@ python plot_prediction_effect.py
 
 ## 许可
 
-- **本仓库中的源代码、预处理脚本与 benchmark 示例**：Apache-2.0（见仓库内许可证文件，若存在）。
-- **LM-SimBench 数据集**（处理后的 profiling 表、原始轨迹、元数据与数据集文档）：以 Hugging Face 上的 **CC BY 4.0** 为准；详见各数据集页的说明。
+与数据集许可（如 CC BY-SA 4.0）及仓库根目录 `LICENSE` 保持一致。
