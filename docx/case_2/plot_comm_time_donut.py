@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys
 from pathlib import Path
 import re
 
@@ -10,25 +9,27 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
-_MODEL_QWEN25_CASE2 = "qwen25_32b_32k"
+# ===============================
+# Paths (relative to this script)
+#
+# Reviewers should place their profiler exports under case_2/data/<model>/
+# <parallel_config>/<rank>/. The expected file is `comm_time.csv` with a
+# communication-type column (e.g. `communication_type`) and a time column
+# (e.g. `communication_time_ms` or `*_us`).
+# ===============================
+_CASE2_DIR = Path(__file__).resolve().parent
 
-_DOCX_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(_DOCX_ROOT))
-from paths import dataset_root, figures_case2_dir
-
-
-INPUT_DIR = dataset_root() / _MODEL_QWEN25_CASE2 / "dp1-tp8-pp4-cp1-RC" / "rank_0"
-
-OUTPUT_DIR = figures_case2_dir()
-
-CSV_PATH = INPUT_DIR / "comm_time.csv"
-# 原来的单一路径替换为 PNG + PDF 双路径
-
-OUTPUT_PNG_PATH = OUTPUT_DIR / "figure_x9_comm_time_bar_inset_qwen25_32b_32k_rank0.png"
-OUTPUT_PDF_PATH = OUTPUT_DIR / "figure_x9_comm_time_bar_inset_qwen25_32b_32k_rank0.pdf"
 MODEL_NAME = "qwen25_32b_32k"
 CONFIG_NAME = "dp1-tp8-pp4-cp1-RC"
 RANK_NAME = "rank_0"
+
+INPUT_DIR = _CASE2_DIR / "data" / MODEL_NAME / CONFIG_NAME / RANK_NAME
+OUTPUT_DIR = _CASE2_DIR / "outputs"
+
+CSV_PATH = INPUT_DIR / "comm_time.csv"
+
+OUTPUT_PNG_PATH = OUTPUT_DIR / "figure_x9_comm_time_bar_inset_qwen25_32b_32k_rank0.png"
+OUTPUT_PDF_PATH = OUTPUT_DIR / "figure_x9_comm_time_bar_inset_qwen25_32b_32k_rank0.pdf"
 
 
 plt.rcParams.update({

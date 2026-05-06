@@ -1,116 +1,145 @@
 ﻿# LM-SimBench — Benchmark Code
 
-Reusable evaluation metrics, preprocessing utilities, and **sanitized example launch scripts** for the LM-SimBench profiling dataset. Public CSV releases are hosted on Hugging Face ([LM-SimBench](https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench), [LM-SimBench_raw](https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench_raw)).
+可复用的评估指标、预处理工具，以及面向公开评测数据的示例启动脚本。公开 CSV 数据托管在 Hugging Face：[LM-SimBench](https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench)、[LM-SimBench_raw](https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench_raw)。
 
-## Repository layout
+## 仓库结构（`benchmark/`）
 
 ```text
 benchmark/
-  README.md                 # This file
-  pyproject.toml            # Installable `lm_simbench` package metadata
-  requirements.txt          # Pinned-style dependencies for quick setup
+  README.md                 # 本文件
+  pyproject.toml            # 可安装的 lm_simbench 包元数据
+  requirements.txt          # 快速环境依赖
   src/
-    lm_simbench/            # Python package: metrics and task helpers
-      __init__.py
-      component.py          # Component-level latency metrics
-      metrics.py            # Shared metric helpers
-      ranking.py            # Configuration ranking / regret
-      system.py             # System-level iteration time & memory
+    lm_simbench/            # Python 包：指标与任务辅助函数
   scripts/
-    preprocessing/          # Profiler → dataset CSV pipeline (numbered steps)
-      01_filter_profiler_data.py
-      02_extract_matrix_operators.py
-      03_extract_operator_categories.py
-      04_extract_step_trace_time.py
-      05_extract_peak_memory.py
-      06_extract_iteration_time.py
-      07_extract_communication.py
-      08_normalize_layout.py
-      09_rename_rank_dirs.py
-      10_normalize_csv_headers.py
-    launch/                 # Sanitized MindSpeed-LLM training launch examples (*.sh)
-      gemma2_9b_8k.sh
-      gemma2_27b_8k.sh
-      glm4_9b_8k.sh
-      internlm25_1point8b_32k.sh
-      internlm25_20b_32k.sh
-      internlm25_7b_32k.sh
-      internlm3_8b_8k.sh
-      mistral_7b_32k.sh
-      phi35_mini_4k.sh
-      phi35_moe_4k.sh
-      qwen15_1.8b_8k.sh
-      qwen15_4b_8k.sh
-      qwen25_0point5_32k.sh
-      qwen25_14b_8k.sh
-      qwen25_32b_32k.sh
-      qwen25_3b_32k.sh
-      qwen25_72b_8k.sh
-      qwen25_7b_8k.sh
-      qwen2_1.5b_4k.sh
-      qwen3_0.6b_4k.sh
-      qwen3_1.7b_4k.sh
-      qwen3_30b_a3b_4k.sh
-      qwen3_8b_4k.sh
-  docx/                     # Paper-style figure scripts (matplotlib); see docx/README.md
-    paths.py
-    requirements-plot.txt
-    case_1/
-    case_2/
-    matrix_operator_prediction/
+    preprocessing/          # Profiler → 数据集 CSV 流水线（01_ … 10_）
+    launch/                 # 脱敏后的训练启动示例（*.sh）
+  docx/                     # 论文级作图脚本（matplotlib / seaborn）
+    requirements-plot.txt   # 作图额外依赖
+    case_1/                 # 案例一：qwen15_1.8b_8k 等图表（含已打包 CSV）
+    case_2/                 # 案例二：qwen25_32b_32k 等（输入需放入 case_2/data/）
+    case_2/matrix_operator_prediction/  # 矩阵算子预测效果图（需自备 *_predicted.csv）
 ```
 
-## Installation (Python package)
+## 环境安装（Python 包）
 
-From the `benchmark` directory:
+在 **`benchmark/`** 目录下：
 
 ```bash
+pip install -r requirements.txt
 pip install -e .
 ```
 
-Or without installing, add `src` to `PYTHONPATH`:
+若暂不安装，可将 `src` 加入 `PYTHONPATH`：
 
 ```bash
-export PYTHONPATH=/path/to/repo/benchmark/src:$PYTHONPATH
+export PYTHONPATH=/path/to/benchmark/src:$PYTHONPATH
 python -c "from lm_simbench import mae, strategy_ranking_summary"
 ```
 
-Dependencies: see `requirements.txt` or `pyproject.toml` (`numpy`, `pandas`, `scipy`).
+## 预处理流水线
 
-## Preprocessing pipeline
+步骤顺序与 CLI 见 [`scripts/preprocessing/README.md`](scripts/preprocessing/README.md)。各脚本支持 `--help` 查看输入输出路径与选项。
 
-See [`scripts/preprocessing/README.md`](scripts/preprocessing/README.md) for step order (`01_` … `10_`) and CLI entry points. Run each script with `--help` for input/output paths and options.
+## 启动脚本
 
-## Launch scripts
+[`scripts/launch/`](scripts/launch/) 中为**脱敏**后的训练启动示例，供复现文档引用；机器路径、集群名与敏感信息已移除或替换。
 
-[`scripts/launch/`](scripts/launch/) contains **sanitized** shell scripts illustrating how profiling runs were started. They are references for reproducibility documentation; paths, cluster names, and secrets are removed or replaced.
+## 指标 API（概要）
 
-## Metrics API (high level)
+- **系统级**：迭代时间（MAE、sMAPE）、峰值显存聚合、与设备显存上界的可行性等。
+- **组件级**：算子 / 矩阵 / 通信等延迟指标（MAE、sMAPE、R² 等）。
+- **排序**：Spearman、Top-k hit、Top-k regret 等。
 
-- **System-level**: iteration time (MAE, sMAPE), peak memory aggregation, feasibility vs. device memory cap.
-- **Component-level**: operator / matrix / communication latency metrics (MAE, sMAPE, R²), optional grouping (e.g. comm type × message size bucket).
-- **Ranking**: Spearman correlation, top-k hit, top-k regret on parallel configurations.
+安装或配置 `PYTHONPATH` 后从 `lm_simbench` 导入；细节见 `src/lm_simbench/` 内注释。
 
-Import symbols from `lm_simbench` after installation or `PYTHONPATH` setup; see package docstrings in `src/lm_simbench/`.
+## 维护计划
 
-## Visualization (paper figures)
+LM-SimBench 作为有版本记录的评测资源维护，我们将：
 
-Case-study plotting scripts live under [`docx/`](docx/README.md). Install extra deps with `pip install -r docx/requirements-plot.txt`.
+- 保留已发布版本以便复现；
+- 在变更日志中记录重大更新；
+- 当数据集字段或任务定义变化时更新 benchmark 脚本；
+- 修复与数据加载、字段不一致或元数据缺失相关的问题；
+- 在后续版本中在条件允许时扩展模型族、并行配置与 profiling 轨迹。
 
-## Maintenance Plan
+欢迎在 GitHub Issues 中报告问题或提出澄清需求。
 
-LM-SimBench will be maintained as a versioned benchmark resource. We will:
+---
 
-- preserve released versions for reproducibility;
-- document major updates in a changelog;
-- update the benchmark scripts when dataset fields or task definitions change;
-- fix reported issues related to data loading, inconsistent fields, or missing metadata;
-- add new model families, parallel configurations, and profiling traces in future releases when available.
+## 论文图表脚本（`docx/`）
 
-Users can report issues or request clarifications through GitHub Issues.
+作图依赖：
 
-## License
+```bash
+pip install -r docx/requirements-plot.txt
+```
 
-The source code, preprocessing scripts, and benchmark examples in this repository are released under the Apache-2.0 license.
+更细的目录说明见 [`docx/README.md`](docx/README.md)。
 
-The LM-SimBench datasets are released separately under the CC BY 4.0 license on Hugging Face. The dataset license applies to the processed profiling tables, raw profiling traces, metadata, and dataset documentation.
+以下命令均假设当前工作目录为 **`benchmark/`**（即本 README 所在目录）。所有脚本使用相对路径，可在任意机器上克隆后直接运行（在数据已就位的前提下）。
+
+### 示例 1：`docx/case_1`（自带 `result/` 下 CSV，可直接复现）
+
+仓库内含 **`docx/case_1/result/`** 中的 `step_time_summary.csv`、`peak_memory.csv` 以及 Calculon 对比所需文件，下列脚本**无需额外下载**即可生成主文案例一相关图与合并表。
+
+```bash
+# 图：各并行配置下的 step 时间与 rank 级峰值显存热力图
+cd docx/case_1
+python plot_step_time_case1.py
+python plot_peak_memory_heatmap_qwen15_1p8b_8k.py
+```
+
+输出目录：`docx/case_1/outputs/`（PNG / PDF）。
+
+```bash
+# Calculon 与 profiler 对比图 + 合并 CSV；并据合并结果计算论文 benchmark 指标表
+cd docx/case_1/result
+python plot_calculon_vs_profiler_qwen15_1p8b.py
+python compute_paper_benchmark_metrics.py
+```
+
+输出目录：`docx/case_1/result/outputs/`（图、CSV）。
+
+### 示例 2：`docx/case_2`（输入放在 `case_2/data/`）
+
+`case_2` 下的作图脚本从**相对路径**读取模型目录，例如：
+
+- `docx/case_2/data/qwen25_32b_32k/peak_memory.csv` — 折线图
+- `docx/case_2/data/qwen25_32b_32k/step_trace_time_summary.csv` — 按 rank 的 step trace 堆叠图
+- `docx/case_2/data/qwen25_32b_32k/<parallel_config>/rank_0/comm_time.csv` — 通信时间图
+- `docx/case_2/data/qwen25_32b_32k/<parallel_config>/rank_0/matrix_operator_latency.csv` — 矩阵算子条形图
+
+具体文件名与列要求见各 `.py` 文件顶部注释。将 profiler 导出的 CSV **按上述相对路径放置**后，在 `benchmark/` 下执行：
+
+```bash
+cd docx/case_2
+python plot_peak_memory_lines_qwen25_32b_32k.py
+python plot_step_trace_stacked_rank_breakdown.py
+python plot_comm_time_donut.py
+python plot_matrix_operator_bubble.py
+```
+
+输出目录：`docx/case_2/outputs/`。
+
+> **说明**：本仓库未必附带完整的 `qwen25_32b_32k` profiler 原始 CSV；若文件缺失，脚本会报错并提示期望路径。可从 Hugging Face 数据集或本地跑通预处理流水线后得到同 schema 的 CSV。
+
+### 矩阵算子预测图（不作一键示例）
+
+`docx/case_2/matrix_operator_prediction/plot_prediction_effect.py` 从 `matrix_operator_prediction/data/` 读取若干 `*_predicted.csv`（内含 `duration_us`、`pred_total_us` 等列），结果写入 `matrix_operator_prediction/outputs/`。**公开仓库中通常不包含该原始预测输入**，故不在此列出可复制粘贴的一键运行示例；自备输入文件后再执行：
+
+```bash
+cd docx/case_2/matrix_operator_prediction
+python plot_prediction_effect.py
+```
+
+---
+
+## 引用
+
+使用本代码或数据集时，请引用 Hugging Face 数据集页说明及您的论文。[数据集页](https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench)。
+
+## 许可
+
+- **本仓库中的源代码、预处理脚本与 benchmark 示例**：Apache-2.0（见仓库内许可证文件，若存在）。
+- **LM-SimBench 数据集**（处理后的 profiling 表、原始轨迹、元数据与数据集文档）：以 Hugging Face 上的 **CC BY 4.0** 为准；详见各数据集页的说明。

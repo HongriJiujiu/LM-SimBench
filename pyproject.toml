@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "LM-SimBench: evaluation metrics and preprocessing helpers for LLM training profiling data."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "CC-BY-SA-4.0" }
+license = { text = "Apache-2.0" }
 authors = [{ name = "LM-SimBench contributors" }]
 keywords = ["llm", "distributed-training", "profiling", "benchmark", "performance-modeling"]
 classifiers = [

@@ -1,0 +1,39 @@
+﻿section,task,metric,value,unit,notes
+component_level,operator_category_latency,n/a,,,Not computable without operator_latency_by_category.csv
+component_level,matrix_operator_latency,n/a,,,Not computable without matrix_operator_latency.csv
+component_level,communication_time,n/a,,,Not computable without comm_time.csv / comm_summary.csv
+system_level,iteration_time_prediction,mae,1965.551923,ms,MAE on iteration_time_ms scale (merge actual_iteration_s×1000)
+system_level,iteration_time_prediction,mae,1.965552,s,same as ms row / 1000
+system_level,iteration_time_prediction,smape,15.961119,percent_0_200,LM-SimBench definition: mean(200*|y-ŷ|/(|y|+|ŷ|+ε))
+system_level,iteration_time_prediction,r2,0.358377,dimensionless,pointwise regression on n configs (same formula as component-level R²)
+system_level,peak_memory_prediction,mae,6.9171,GB,config-level max-over-ranks actual vs Calculon peak (merge CSV)
+system_level,peak_memory_prediction,smape,39.344428,percent_0_200,same sMAPE formula on GB values
+system_level,peak_memory_prediction,r2,-3.086519,dimensionless,
+system_level,memory_feasibility_cp1_64gb_device,device_budget_gb,64.0,GB,step_time_summary configs with CP=1 only
+system_level,memory_feasibility_cp1_64gb_device,n_configs_cp1_total,20,count,from step_time_summary.csv
+system_level,memory_feasibility_cp1_64gb_device,n_configs_with_calculon_peak_in_csv,13,count,qwen15_1.8b_8k_metrics.csv (predicted peak <= budget row retained)
+system_level,memory_feasibility_cp1_64gb_device,n_configs_calculon_missing_predicted_over_budget,7,count,no Calculon row ⇒ treat predicted_feasible=False
+system_level,memory_feasibility_cp1_64gb_device,feasibility_agreement_rate,0.65,fraction,mean(measured_feasible == predicted_feasible); predicted uses CSV peak or OOM
+system_level,memory_feasibility_cp1_64gb_device,n_measured_feasible,20,count,actual_peak_gb <= budget
+system_level,memory_feasibility_cp1_64gb_device,n_predicted_feasible,13,count,pred_peak in CSV and <= budget
+system_level,memory_feasibility_cp1_64gb_device,confusion_tp_meas_feas_pred_feas,13,count,feasible ≡ peak<=budget; pred_feas uses Calculon CSV or missing→infeasible
+system_level,memory_feasibility_cp1_64gb_device,confusion_tn_meas_inf_pred_inf,0,count,feasible ≡ peak<=budget; pred_feas uses Calculon CSV or missing→infeasible
+system_level,memory_feasibility_cp1_64gb_device,confusion_fp_meas_inf_pred_feas,0,count,feasible ≡ peak<=budget; pred_feas uses Calculon CSV or missing→infeasible
+system_level,memory_feasibility_cp1_64gb_device,confusion_fn_meas_feas_pred_inf,7,count,feasible ≡ peak<=budget; pred_feas uses Calculon CSV or missing→infeasible
+strategy_ranking,iteration_time_ranking_all_configs,spearman_rho,0.752747,dimensionless,n_configs=13
+strategy_ranking,iteration_time_ranking_all_configs,top1_hit,1,0_or_1,true best iteration time in top-k by predicted time
+strategy_ranking,iteration_time_ranking_all_configs,top1_regret_ms,0.0,ms,vs global best true iteration time
+strategy_ranking,iteration_time_ranking_all_configs,top1_relative_regret,0.0,dimensionless,regret / best true time
+strategy_ranking,iteration_time_ranking_all_configs,top3_hit,1,0_or_1,true best iteration time in top-k by predicted time
+strategy_ranking,iteration_time_ranking_all_configs,top3_regret_ms,0.0,ms,vs global best true iteration time
+strategy_ranking,iteration_time_ranking_all_configs,top3_relative_regret,0.0,dimensionless,regret / best true time
+strategy_ranking,iteration_time_ranking_all_configs,top5_hit,1,0_or_1,true best iteration time in top-k by predicted time
+strategy_ranking,iteration_time_ranking_all_configs,top5_regret_ms,0.0,ms,vs global best true iteration time
+strategy_ranking,iteration_time_ranking_all_configs,top5_relative_regret,0.0,dimensionless,regret / best true time
+strategy_ranking,iteration_time_ranking_pred_feasible_subset,spearman_rho,0.752747,dimensionless,budget_gb=64.0; pred_peak_gb<=budget; n=13
+strategy_ranking,iteration_time_ranking_pred_feasible_subset,top1_hit,1,0_or_1,budget_gb=64.0
+strategy_ranking,iteration_time_ranking_pred_feasible_subset,top1_regret_ms,0.0,ms,
+strategy_ranking,iteration_time_ranking_pred_feasible_subset,top3_hit,1,0_or_1,budget_gb=64.0
+strategy_ranking,iteration_time_ranking_pred_feasible_subset,top3_regret_ms,0.0,ms,
+strategy_ranking,iteration_time_ranking_pred_feasible_subset,top5_hit,1,0_or_1,budget_gb=64.0
+strategy_ranking,iteration_time_ranking_pred_feasible_subset,top5_regret_ms,0.0,ms,

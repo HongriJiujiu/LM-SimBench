@@ -1,0 +1,3 @@
+Place raw predictor exports here: `<parallel_config>_predicted.csv`
+(columns: type, duration_us, pred_total_us, m, n, k; optional rank_id, rank_name).
+plot_prediction_effect.py reads every *_predicted.csv in this directory.

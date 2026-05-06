@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 r"""
-Figure X.2: Rank-level peak memory heatmap for qwen3_0.6b_4k.
+Figure X.2: Rank-level peak memory heatmap for qwen15_1.8b_8k (DP=1 configs).
 """
 
-import sys
 import re
 from pathlib import Path
 
@@ -14,19 +13,20 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-_DOCX_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(_DOCX_ROOT))
-from paths import dataset_root, figures_case1_dir
-
+_CASE1_DIR = Path(__file__).resolve().parent
 
 # ===============================
-# 1. Fixed paths
+# 1. Paths (relative to this script)
 # ===============================
-MODEL_NAME = "qwen3_0.6b_4k"
+MODEL_NAME = "qwen15_1.8b_8k"
 
-CSV_PATH = dataset_root() / MODEL_NAME / "peak_memory.csv"
+# Profiler export bundled with the repository under case_1/result/.
+# Reviewers can replace this CSV with their own profiler output of the same
+# schema (`optimization_config`, `rank_id`, `peak_memory_mb`).
+CSV_PATH = _CASE1_DIR / "result" / "peak_memory.csv"
 
-OUTPUT_DIR = figures_case1_dir()
+OUTPUT_DIR = _CASE1_DIR / "outputs"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ===============================
@@ -278,8 +278,8 @@ def plot_heatmaps(no_rc_pivot: pd.DataFrame, rc_pivot: pd.DataFrame) -> None:
         right=0.93,
     )
 
-    png_path = OUTPUT_DIR / "figure_x2_peak_memory_heatmap_qwen3_0p6b_4k_dp1_rc_split.png"
-    pdf_path = OUTPUT_DIR / "figure_x2_peak_memory_heatmap_qwen3_0p6b_4k_dp1_rc_split.pdf"
+    png_path = OUTPUT_DIR / "figure_x2_peak_memory_heatmap_qwen15_1.8b_8k_dp1_rc_split.png"
+    pdf_path = OUTPUT_DIR / "figure_x2_peak_memory_heatmap_qwen15_1.8b_8k_dp1_rc_split.pdf"
 
     fig.savefig(png_path, dpi=600, bbox_inches="tight", pad_inches=0.05)
     fig.savefig(pdf_path, bbox_inches="tight", pad_inches=0.05)

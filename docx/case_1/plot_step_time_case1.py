@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys
 from pathlib import Path
 import re
 
@@ -10,16 +9,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 
-_DOCX_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(_DOCX_ROOT))
-from paths import dataset_root, figures_case1_dir
+_CASE1_DIR = Path(__file__).resolve().parent
+MODEL_CASE1 = "qwen15_1.8b_8k"
 
+# Profiler export bundled with the repository under case_1/result/.
+# Reviewers can replace this CSV with their own profiler output of the same
+# schema (`optimization_config`, `iteration_time_ms` / `avg_elapsed_time_per_iteration_ms`).
+CSV_PATH = _CASE1_DIR / "result" / "step_time_summary.csv"
 
-MODEL_CASE1_QWEN3 = "qwen3_0.6b_4k"
-
-CSV_PATH = dataset_root() / MODEL_CASE1_QWEN3 / "step_time_summary.csv"
-
-OUTPUT_DIR = figures_case1_dir()
+OUTPUT_DIR = _CASE1_DIR / "outputs"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ===============================
@@ -78,6 +77,12 @@ def simplify_config_label(config: str) -> str:
 # 3. 读取数据
 # ===============================
 df = pd.read_csv(CSV_PATH)
+
+if (
+    "iteration_time_ms" in df.columns
+    and "avg_elapsed_time_per_iteration_ms" not in df.columns
+):
+    df = df.rename(columns={"iteration_time_ms": "avg_elapsed_time_per_iteration_ms"})
 
 required_cols = [
     "optimization_config",
@@ -284,8 +289,8 @@ plt.tight_layout()
 # ===============================
 # 9. 保存图片
 # ===============================
-png_path = OUTPUT_DIR / "figure_x1_step_time_qwen3_0.6b_4k_grouped.png"
-pdf_path = OUTPUT_DIR / "figure_x1_step_time_qwen3_0.6b_4k_grouped.pdf"
+png_path = OUTPUT_DIR / "figure_x1_step_time_qwen15_1.8b_8k_grouped.png"
+pdf_path = OUTPUT_DIR / "figure_x1_step_time_qwen15_1.8b_8k_grouped.pdf"
 
 plt.savefig(png_path, dpi=600, bbox_inches="tight", pad_inches=0.08)
 plt.savefig(pdf_path, bbox_inches="tight", pad_inches=0.08)

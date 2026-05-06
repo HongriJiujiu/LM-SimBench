@@ -9,8 +9,10 @@ import pandas as pd
 
 
 BASE_DIR = Path(__file__).resolve().parent
-INPUT_DIR = BASE_DIR / "predictions_input"
-OUTPUT_DIR = BASE_DIR / "figures"
+# Raw per-call inputs: place `<parallel_config>_predicted.csv` here (columns at
+# minimum: type, duration_us, pred_total_us, m, n, k; optional rank_id, rank_name).
+INPUT_DIR = BASE_DIR / "data"
+OUTPUT_DIR = BASE_DIR / "outputs"
 
 MODEL_NAME = "qwen25_32b_32k"
 TOP_K = 10
@@ -74,6 +76,8 @@ def get_config_name(csv_path):
 
 
 def clean_old_outputs():
+    """Clear regenerated artifacts under ``outputs/`` only (never touch ``data/``)."""
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     for pattern in [
         "prediction_effect_*.png",
         "prediction_effect_*.pdf",
@@ -377,15 +381,16 @@ def process_file(csv_path):
 
 
 def main():
-    if not INPUT_DIR.exists():
-        raise FileNotFoundError(f"Input directory not found: {INPUT_DIR}")
-
+    INPUT_DIR.mkdir(parents=True, exist_ok=True)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     clean_old_outputs()
 
     csv_files = sorted(INPUT_DIR.glob("*_predicted.csv"))
     if not csv_files:
-        raise FileNotFoundError(f"No *_predicted.csv files found in: {INPUT_DIR}")
+        raise FileNotFoundError(
+            f"No *_predicted.csv files found in: {INPUT_DIR}\n"
+            "Place predictor output CSVs under data/ (same directory as this script)."
+        )
 
     for csv_path in csv_files:
         summary_path, png_path, pdf_path = process_file(csv_path)

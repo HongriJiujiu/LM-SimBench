@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys
 from pathlib import Path
 import re
 
@@ -9,14 +8,21 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-_DOCX_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(_DOCX_ROOT))
-from paths import dataset_root, figures_case2_rank_breakdown_dir
+# ===============================
+# Paths (relative to this script)
+#
+# Reviewers should place their profiler export under case_2/data/<model>/.
+# The expected file is `step_trace_time_summary.csv` with columns
+# `optimization_config, rank_id, computing, communication_not_overlapped,
+# overlapped, free, stage` (column names are normalised to snake_case below).
+# ===============================
+_CASE2_DIR = Path(__file__).resolve().parent
 
+MODEL_NAME = "qwen25_32b_32k"
 
-CSV_PATH = dataset_root() / "qwen25_32b_32k" / "step_trace_time_summary.csv"
-
-OUTPUT_DIR = figures_case2_rank_breakdown_dir()
+CSV_PATH = _CASE2_DIR / "data" / MODEL_NAME / "step_trace_time_summary.csv"
+OUTPUT_DIR = _CASE2_DIR / "outputs"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 plt.rcParams.update({
@@ -80,6 +86,14 @@ def parse_config(config: str):
         config,
     )
 
+
+if not CSV_PATH.exists():
+    raise FileNotFoundError(
+        f"Input file not found: {CSV_PATH}\n"
+        "Place a profiler `step_trace_time_summary.csv` (columns: "
+        "optimization_config, rank_id, computing, communication_not_overlapped, "
+        "overlapped, free, stage) under this path."
+    )
 
 df = pd.read_csv(CSV_PATH)
 df.columns = [to_snake_case(c) for c in df.columns]

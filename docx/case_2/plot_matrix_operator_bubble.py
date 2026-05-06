@@ -1,31 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys
 from pathlib import Path
+
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# ===============================
+# Paths (relative to this script)
+#
+# Reviewers should place their profiler exports under case_2/data/<model>/
+# <parallel_config>/<rank>/. The expected file is `matrix_operator_latency.csv`
+# with columns `type, duration_us, m, n, k`.
+# ===============================
+_CASE2_DIR = Path(__file__).resolve().parent
 
-_MODEL_QWEN25_CASE2 = "qwen25_32b_32k"
-
-_DOCX_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(_DOCX_ROOT))
-from paths import dataset_root, figures_case2_dir
-
-
-INPUT_DIR = dataset_root() / _MODEL_QWEN25_CASE2 / "dp1-tp8-pp4-cp1-RC" / "rank_0"
-
-OUTPUT_DIR = figures_case2_dir()
-
-CSV_PATH = INPUT_DIR / "matrix_operator_latency.csv"
-# 将原来的保存部分替换为下面内容，即同时保存 PNG + PDF
-
-OUTPUT_PNG_PATH = OUTPUT_DIR / "figure_x10_matrix_operator_mnk_latency_qwen25_32b_32k_rank0.png"
-OUTPUT_PDF_PATH = OUTPUT_DIR / "figure_x10_matrix_operator_mnk_latency_qwen25_32b_32k_rank0.pdf"
 MODEL_NAME = "qwen25_32b_32k"
 CONFIG_NAME = "dp1-tp8-pp4-cp1-RC"
 RANK_NAME = "rank_0"
+
+INPUT_DIR = _CASE2_DIR / "data" / MODEL_NAME / CONFIG_NAME / RANK_NAME
+OUTPUT_DIR = _CASE2_DIR / "outputs"
+
+CSV_PATH = INPUT_DIR / "matrix_operator_latency.csv"
+
+OUTPUT_PNG_PATH = OUTPUT_DIR / "figure_x10_matrix_operator_mnk_latency_qwen25_32b_32k_rank0.png"
+OUTPUT_PDF_PATH = OUTPUT_DIR / "figure_x10_matrix_operator_mnk_latency_qwen25_32b_32k_rank0.pdf"
 
 TOP_K = 10
 

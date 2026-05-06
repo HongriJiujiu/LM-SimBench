@@ -1,0 +1,14 @@
+﻿model_name,parallel_config,calculon_iteration_time,peak_memory
+qwen15_1.8b_8k,dp1-tp1-pp8-cp1-RC,10.3973,13.542
+qwen15_1.8b_8k,dp1-tp2-pp4-cp1-RC,12.8380,8.213
+qwen15_1.8b_8k,dp1-tp4-pp2-cp1-noRC,10.7539,37.445
+qwen15_1.8b_8k,dp1-tp4-pp2-cp1-RC,15.4148,5.424
+qwen15_1.8b_8k,dp1-tp8-pp1-cp1-noRC,15.0232,20.385
+qwen15_1.8b_8k,dp1-tp8-pp1-cp1-RC,21.5520,4.031
+qwen15_1.8b_8k,dp2-tp1-pp4-cp1-RC,10.2263,15.301
+qwen15_1.8b_8k,dp2-tp2-pp2-cp1-RC,12.6411,9.972
+qwen15_1.8b_8k,dp2-tp4-pp1-cp1-noRC,10.5832,39.204
+qwen15_1.8b_8k,dp2-tp4-pp1-cp1-RC,15.1723,7.183
+qwen15_1.8b_8k,dp4-tp1-pp2-cp1-RC,9.9264,18.817
+qwen15_1.8b_8k,dp4-tp2-pp1-cp1-RC,12.2514,13.489
+qwen15_1.8b_8k,dp8-tp1-pp1-cp1-RC,9.3466,25.850

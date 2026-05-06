@@ -1,26 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys
+import re
 from pathlib import Path
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+# ===============================
+# Paths (relative to this script)
+#
+# Reviewers should place their profiler exports under case_2/data/<model>/.
+# The expected file is `peak_memory.csv` with columns
+# `optimization_config, rank_id, peak_memory_mb`.
+# ===============================
+_CASE2_DIR = Path(__file__).resolve().parent
 
-_MODEL_QWEN25_CASE2 = "qwen25_32b_32k"
+MODEL_NAME = "qwen25_32b_32k"
 
-_DOCX_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(_DOCX_ROOT))
-from paths import dataset_root, figures_case2_dir
-
-
-MODEL_NAME = _MODEL_QWEN25_CASE2
-
-CSV_PATH = dataset_root() / MODEL_NAME / "peak_memory.csv"
-
-OUTPUT_DIR = figures_case2_dir()
+CSV_PATH = _CASE2_DIR / "data" / MODEL_NAME / "peak_memory.csv"
+OUTPUT_DIR = _CASE2_DIR / "outputs"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ===============================
@@ -75,6 +76,13 @@ def short_label(config: str) -> str:
 # ===============================
 # 2. Load data
 # ===============================
+if not CSV_PATH.exists():
+    raise FileNotFoundError(
+        f"Input file not found: {CSV_PATH}\n"
+        "Place a profiler `peak_memory.csv` (columns: optimization_config, "
+        "rank_id, peak_memory_mb) under this path."
+    )
+
 df = pd.read_csv(CSV_PATH)
 
 required_cols = ["optimization_config", "rank_id", "peak_memory_mb"]
