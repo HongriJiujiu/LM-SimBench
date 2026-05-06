@@ -1,102 +1,102 @@
 ﻿# LM-SimBench — Benchmark Code
 
-可复用的评估指标、预处理工具，以及面向公开评测数据的示例启动脚本。公开 CSV 数据托管在 Hugging Face：[LM-SimBench](https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench)、[LM-SimBench_raw](https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench_raw)。
+Reusable evaluation metrics, preprocessing utilities, and reference launch scripts for the LM-SimBench profiling benchmark. Public CSV releases are hosted on Hugging Face: [LM-SimBench](https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench), [LM-SimBench_raw](https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench_raw).
 
-## 仓库结构（`benchmark/`）
+## Repository layout (`benchmark/`)
 
 ```text
 benchmark/
-  README.md                 # 本文件
-  pyproject.toml            # 可安装的 lm_simbench 包元数据
-  requirements.txt          # 快速环境依赖
+  README.md                 # This file
+  pyproject.toml            # Installable `lm_simbench` package metadata
+  requirements.txt          # Core Python dependencies
   src/
-    lm_simbench/            # Python 包：指标与任务辅助函数
+    lm_simbench/            # Metrics and task helpers
   scripts/
-    preprocessing/          # Profiler → 数据集 CSV 流水线（01_ … 10_）
-    launch/                 # 脱敏后的训练启动示例（*.sh）
-  docx/                     # 论文级作图脚本（matplotlib / seaborn）
-    requirements-plot.txt   # 作图额外依赖
-    case_1/                 # 案例一：qwen15_1.8b_8k 等图表（含已打包 CSV）
-    case_2/                 # 案例二：qwen25_32b_32k 等（输入需放入 case_2/data/）
-    case_2/matrix_operator_prediction/  # 矩阵算子预测效果图（需自备 *_predicted.csv）
+    preprocessing/          # Profiler → dataset CSV pipeline (01_ … 10_)
+    launch/                 # Reference training launch scripts (*.sh), sanitized
+  docx/                     # Figure-reproduction scripts (matplotlib / seaborn)
+    requirements-plot.txt   # Extra dependencies for plotting
+    case_1/                 # Case-study 1 (qwen15_1.8b_8k); bundled CSVs under case_1/result/
+    case_2/                 # Case-study 2 (qwen25_32b_32k); place profiler CSVs under case_2/data/
+    case_2/matrix_operator_prediction/  # Matrix prediction figures; input CSVs under data/
 ```
 
-## 环境安装（Python 包）
+## Installation (Python package)
 
-在 **`benchmark/`** 目录下：
+From the **`benchmark/`** directory:
 
 ```bash
 pip install -r requirements.txt
 pip install -e .
 ```
 
-若暂不安装，可将 `src` 加入 `PYTHONPATH`：
+Without installing the package, add `src` to `PYTHONPATH`:
 
 ```bash
 export PYTHONPATH=/path/to/benchmark/src:$PYTHONPATH
 python -c "from lm_simbench import mae, strategy_ranking_summary"
 ```
 
-## 预处理流水线
+Core dependencies are listed in `requirements.txt` and `pyproject.toml` (`numpy`, `pandas`, `scipy`).
 
-步骤顺序与 CLI 见 [`scripts/preprocessing/README.md`](scripts/preprocessing/README.md)。各脚本支持 `--help` 查看输入输出路径与选项。
+## Preprocessing pipeline
 
-## 启动脚本
+Step order and CLIs are documented in [`scripts/preprocessing/README.md`](scripts/preprocessing/README.md). Run each script with `--help` for paths and options.
 
-[`scripts/launch/`](scripts/launch/) 中为**脱敏**后的训练启动示例，供复现文档引用；机器路径、集群名与敏感信息已移除或替换。
+## Launch scripts
 
-## 指标 API（概要）
+[`scripts/launch/`](scripts/launch/) contains **sanitized** shell scripts illustrating how profiling runs were configured. Host paths, cluster identifiers, and credentials are removed or replaced with placeholders.
 
-- **系统级**：迭代时间（MAE、sMAPE）、峰值显存聚合、与设备显存上界的可行性等。
-- **组件级**：算子 / 矩阵 / 通信等延迟指标（MAE、sMAPE、R² 等）。
-- **排序**：Spearman、Top-k hit、Top-k regret 等。
+## Metrics API (overview)
 
-安装或配置 `PYTHONPATH` 后从 `lm_simbench` 导入；细节见 `src/lm_simbench/` 内注释。
+- **System-level**: iteration time (MAE, sMAPE), peak-memory aggregation, feasibility vs. device memory budget.
+- **Component-level**: operator / matrix / communication latency metrics (MAE, sMAPE, R²), optional grouping.
+- **Ranking**: Spearman correlation, top-k hit, top-k regret over parallel configurations.
+
+Import from `lm_simbench` after installation or `PYTHONPATH` setup; see `src/lm_simbench/` for details.
 
 ---
 
-## 论文图表脚本（`docx/`）
+## Figure scripts (`docx/`)
 
-作图依赖：
+Additional dependencies:
 
 ```bash
 pip install -r docx/requirements-plot.txt
 ```
 
-以下命令均假设当前工作目录为 **`benchmark/`**（即本 README 所在目录）。所有脚本使用相对路径，可在任意机器上克隆后直接运行（在数据已就位的前提下）。
+The following assumes the working directory is **`benchmark/`** (this README’s directory). Scripts resolve inputs and outputs with **relative paths** only.
 
-### 示例 1：`docx/case_1`（自带 `result/` 下 CSV，可直接复现）
+### Case 1 — `docx/case_1`
 
-仓库内含 **`docx/case_1/result/`** 中的 `step_time_summary.csv`、`peak_memory.csv` 以及 Calculon 对比所需文件，下列脚本**无需额外下载**即可生成主文案例一相关图与合并表。
+Bundled CSVs under **`docx/case_1/result/`** (`step_time_summary.csv`, `peak_memory.csv`, and files used for Calculon comparison) support reproducing the primary case-study figures without extra downloads.
 
 ```bash
-# 图：各并行配置下的 step 时间与 rank 级峰值显存热力图
 cd docx/case_1
 python plot_step_time_case1.py
 python plot_peak_memory_heatmap_qwen15_1p8b_8k.py
 ```
 
-输出目录：`docx/case_1/outputs/`（PNG / PDF）。
+Outputs: `docx/case_1/outputs/` (PNG and PDF).
 
 ```bash
-# Calculon 与 profiler 对比图 + 合并 CSV；并据合并结果计算论文 benchmark 指标表
 cd docx/case_1/result
 python plot_calculon_vs_profiler_qwen15_1p8b.py
 python compute_paper_benchmark_metrics.py
 ```
 
-输出目录：`docx/case_1/result/outputs/`（图、CSV）。
+Outputs: `docx/case_1/result/outputs/` (figures and CSV summaries).
 
-### 示例 2：`docx/case_2`（输入放在 `case_2/data/`）
+### Case 2 — `docx/case_2`
 
-`case_2` 下的作图脚本从**相对路径**读取模型目录，例如：
+Plotting scripts read profiler exports under **`docx/case_2/data/`**, following the layout documented at the top of each script. Typical paths include:
 
-- `docx/case_2/data/qwen25_32b_32k/peak_memory.csv` — 折线图
-- `docx/case_2/data/qwen25_32b_32k/step_trace_time_summary.csv` — 按 rank 的 step trace 堆叠图
-- `docx/case_2/data/qwen25_32b_32k/<parallel_config>/rank_0/comm_time.csv` — 通信时间图
-- `docx/case_2/data/qwen25_32b_32k/<parallel_config>/rank_0/matrix_operator_latency.csv` — 矩阵算子条形图
+- `docx/case_2/data/qwen25_32b_32k/peak_memory.csv`
+- `docx/case_2/data/qwen25_32b_32k/step_trace_time_summary.csv`
+- `docx/case_2/data/qwen25_32b_32k/<parallel_config>/rank_0/comm_time.csv`
+- `docx/case_2/data/qwen25_32b_32k/<parallel_config>/rank_0/matrix_operator_latency.csv`
 
-具体文件名与列要求见各 `.py` 文件顶部注释。将 profiler 导出的 CSV **按上述相对路径放置**后，在 `benchmark/` 下执行：
+After placing CSVs that match the expected schema (see each `.py` file), run from **`benchmark/`**:
 
 ```bash
 cd docx/case_2
@@ -106,25 +106,27 @@ python plot_comm_time_donut.py
 python plot_matrix_operator_bubble.py
 ```
 
-输出目录：`docx/case_2/outputs/`。
+Outputs: `docx/case_2/outputs/`.
 
-> **说明**：本仓库未必附带完整的 `qwen25_32b_32k` profiler 原始 CSV；若文件缺失，脚本会报错并提示期望路径。可从 Hugging Face 数据集或本地跑通预处理流水线后得到同 schema 的 CSV。
+Profiler CSVs with the same column layout can be obtained from the Hugging Face releases or by running the preprocessing pipeline on your exports.
 
-### 矩阵算子预测图（不作一键示例）
+### Matrix operator prediction — `docx/case_2/matrix_operator_prediction`
 
-`docx/case_2/matrix_operator_prediction/plot_prediction_effect.py` 从 `matrix_operator_prediction/data/` 读取若干 `*_predicted.csv`（内含 `duration_us`、`pred_total_us` 等列），结果写入 `matrix_operator_prediction/outputs/`。**公开仓库中通常不包含该原始预测输入**，故不在此列出可复制粘贴的一键运行示例；自备输入文件后再执行：
+`plot_prediction_effect.py` reads per-configuration files named `*_predicted.csv` under **`matrix_operator_prediction/data/`** (required columns include `type`, `duration_us`, `pred_total_us`, `m`, `n`, `k`). It writes figures and per-group metric tables to **`matrix_operator_prediction/outputs/`**.
 
 ```bash
 cd docx/case_2/matrix_operator_prediction
 python plot_prediction_effect.py
 ```
 
+Further layout and I/O details: [`docx/README.md`](docx/README.md).
+
 ---
 
-## 引用
+## Citation
 
-使用本代码或数据集时，请引用 Hugging Face 数据集页说明及您的论文。[数据集页](https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench)。
+If you use this code or the dataset, cite the Hugging Face dataset card and the accompanying paper as appropriate. See the [dataset page](https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench).
 
-## 许可
+## License
 
-与数据集许可（如 CC BY-SA 4.0）及仓库根目录 `LICENSE` 保持一致。
+See `pyproject.toml` and the repository `LICENSE` file for the applicable terms (e.g. CC BY-SA 4.0, consistent with the dataset).
