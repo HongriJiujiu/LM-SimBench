@@ -27,7 +27,6 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench"
-# Source = "https://github.com/<org>/<repo>"  # set when the GitHub URL is public
 
 [tool.setuptools.packages.find]
 where = ["src"]
