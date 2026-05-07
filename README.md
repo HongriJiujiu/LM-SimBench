@@ -1,6 +1,6 @@
 ﻿# LM-SimBench — Benchmark Code
 
-Reusable evaluation metrics, preprocessing utilities, and reference launch scripts for the LM-SimBench profiling benchmark. Public CSV releases are hosted on Hugging Face: [LM-SimBench](https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench), [LM-SimBench_raw](https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench_raw).
+Reusable evaluation metrics, preprocessing utilities, and reference launch scripts for the LM-SimBench profiling benchmark. Public CSV releases are hosted on Hugging Face: [LM-SimBench](https://huggingface.co/datasets/anonymous-neurips26-ljasd/LM-SimBench), [LM-SimBench_raw](https://huggingface.co/datasets/anonymous-neurips26-ljasd/LM-SimBench_raw).
 
 ## Repository layout (`benchmark/`)
 
@@ -125,7 +125,7 @@ Further layout and I/O details: [`docx/README.md`](docx/README.md).
 
 ## Citation
 
-If you use this code or the dataset, cite the Hugging Face dataset card and the accompanying paper as appropriate. See the [dataset page](https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench).
+If you use this code or the dataset, cite the Hugging Face dataset card and the accompanying paper as appropriate. See the [dataset page](https://huggingface.co/datasets/anonymous-neurips26-ljasd/LM-SimBench).
 
 ## License
 
