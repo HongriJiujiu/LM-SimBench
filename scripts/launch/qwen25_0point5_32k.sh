@@ -147,14 +147,14 @@ else
     SP_ARGS=""
 fi
 
-# ========== 修改1：根据 CP 值条件性启用环形注意力更新 ==========
+# CP > 1 时启用融合环形注意力更新。
 if [ "$CP" -gt 1 ]; then
     RING_ATTN_ARGS="--use-fused-ring-attention-update"
 else
     RING_ATTN_ARGS=""
 fi
 
-# ========== 修改2：根据 USE_DIST_OPT 变量决定是否使用分布式优化器 ==========
+# USE_DIST_OPT = 1 时启用分布式优化器。
 if [ "$USE_DIST_OPT" -eq 1 ]; then
     DIST_OPT_ARGS="--use-distributed-optimizer"
 else

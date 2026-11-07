@@ -29,8 +29,16 @@ def merge_pred_true_arrays(
     how: str = "inner",
 ) -> tuple[np.ndarray, np.ndarray]:
     """
-    Join two frames on keys and return aligned (y_true, y_pred) as float arrays.
+    Join on unique, non-null keys and return aligned targets as float arrays.
+
+    Inner joins evaluate the key intersection. Outer/left/right joins retain
+    missing targets as NaN. Aggregate duplicate keys before calling this helper.
     """
+    on = list(on)
+    if not on or len(set(on)) != len(on):
+        raise ValueError("on must contain unique join columns")
+    if y_col_true in on or y_col_pred in on:
+        raise ValueError("Target columns must not be join keys")
     missing_t = (set(on) | {y_col_true}) - set(df_true.columns)
     missing_p = (set(on) | {y_col_pred}) - set(df_pred.columns)
     if missing_t:
@@ -41,9 +49,18 @@ def merge_pred_true_arrays(
     p = df_pred[list(on) + [y_col_pred]].copy()
     t[y_col_true] = pd.to_numeric(t[y_col_true], errors="coerce")
     p[y_col_pred] = pd.to_numeric(p[y_col_pred], errors="coerce")
-    merged = t.merge(p, on=list(on), how=how)
-    y_true = merged[y_col_true].to_numpy(dtype=float)
-    y_pred = merged[y_col_pred].to_numpy(dtype=float)
+    if t[on].isna().any().any() or p[on].isna().any().any():
+        raise ValueError("Join keys must not contain null values")
+    true_col, pred_col = "__true_target", "__pred_target"
+    while true_col in on:
+        true_col += "_"
+    while pred_col in on:
+        pred_col += "_"
+    t = t.rename(columns={y_col_true: true_col})
+    p = p.rename(columns={y_col_pred: pred_col})
+    merged = t.merge(p, on=on, how=how, validate="one_to_one")
+    y_true = merged[true_col].to_numpy(dtype=float)
+    y_pred = merged[pred_col].to_numpy(dtype=float)
     return y_true, y_pred
 
 
@@ -88,7 +105,7 @@ def regression_metrics_by_group(
     y_col_true: str,
     y_col_pred: str,
 ) -> pd.DataFrame:
-    """Compute MAE / sMAPE / R² per group (e.g. comm_type × size bucket)."""
+    """Compute metrics per group; n counts finite pairs and n_total counts rows."""
     missing = (set(group_cols) | {y_col_true, y_col_pred}) - set(df.columns)
     if missing:
         raise ValueError(f"df missing columns: {sorted(missing)}")
@@ -102,7 +119,8 @@ def regression_metrics_by_group(
         m = regression_metrics(y_true, y_pred)
         row = {col: k for col, k in zip(group_cols, keys)}
         row.update(m)
-        row["n"] = int(len(g))
+        row["n"] = int(np.count_nonzero(np.isfinite(y_true) & np.isfinite(y_pred)))
+        row["n_total"] = int(len(g))
         rows.append(row)
     return pd.DataFrame(rows)
 

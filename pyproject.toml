@@ -26,7 +26,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://huggingface.co/datasets/jiujiudahaozi/LM-SimBench"
+Homepage = "https://huggingface.co/datasets/anonymous-neurips26-ljasd/LM-SimBench"
 
 [tool.setuptools.packages.find]
 where = ["src"]

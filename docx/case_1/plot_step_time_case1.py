@@ -22,7 +22,7 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ===============================
-# 1. 论文级绘图风格
+# 1. 绘图样式设置
 # ===============================
 plt.rcParams.update({
     "font.family": "Times New Roman",

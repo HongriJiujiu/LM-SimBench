@@ -75,18 +75,6 @@ def get_config_name(csv_path):
     return stem[:-len(suffix)] if stem.endswith(suffix) else stem
 
 
-def clean_old_outputs():
-    """Clear regenerated artifacts under ``outputs/`` only (never touch ``data/``)."""
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    for pattern in [
-        "prediction_effect_*.png",
-        "prediction_effect_*.pdf",
-        "prediction_metrics_*.csv",
-    ]:
-        for path in OUTPUT_DIR.glob(pattern):
-            path.unlink()
-
-
 def load_prediction_csv(csv_path):
     required_cols = [
         "type",
@@ -112,6 +100,8 @@ def load_prediction_csv(csv_path):
 
     df = df.dropna(subset=["duration_us", "pred_total_us", "m", "n", "k"])
     df = df[(df["duration_us"] > 0) & (df["pred_total_us"] > 0)].copy()
+    if df.empty:
+        raise ValueError(f"{csv_path.name} has no valid prediction rows")
 
     for col in ["m", "n", "k"]:
         df[col] = df[col].astype(int)
@@ -381,10 +371,6 @@ def process_file(csv_path):
 
 
 def main():
-    INPUT_DIR.mkdir(parents=True, exist_ok=True)
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    clean_old_outputs()
-
     csv_files = sorted(INPUT_DIR.glob("*_predicted.csv"))
     if not csv_files:
         raise FileNotFoundError(
@@ -392,6 +378,7 @@ def main():
             "Place predictor output CSVs under data/ (same directory as this script)."
         )
 
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     for csv_path in csv_files:
         summary_path, png_path, pdf_path = process_file(csv_path)
         print(f"[OK] Saved summary: {summary_path}")

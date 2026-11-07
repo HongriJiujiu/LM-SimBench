@@ -2,6 +2,10 @@
 
 Reusable evaluation metrics, preprocessing utilities, and reference launch scripts for the LM-SimBench profiling benchmark. Public CSV releases are hosted on Hugging Face: [LM-SimBench](https://huggingface.co/datasets/anonymous-neurips26-ljasd/LM-SimBench), [LM-SimBench_raw](https://huggingface.co/datasets/anonymous-neurips26-ljasd/LM-SimBench_raw).
 
+This repository contains the metrics package, NPU preprocessing and launch scripts,
+and case-study plotting tools. It does not currently include the cross-platform
+reproduction package, the vTrain adapter or its calibration/test splits.
+
 ## Repository layout (`benchmark/`)
 
 ```text
@@ -54,6 +58,17 @@ Step order and CLIs are documented in [`scripts/preprocessing/README.md`](script
 - **Ranking**: Spearman correlation, top-k hit, top-k regret over parallel configurations.
 
 Import from `lm_simbench` after installation or `PYTHONPATH` setup; see `src/lm_simbench/` for details.
+
+Ranking functions require unique configuration names and aligned, finite,
+nonnegative time vectors. Missing measurements or predictions raise `ValueError`;
+they are not interpreted as successful recommendations. Relative regret is a
+fraction; multiply by 100 to report a percentage. Predicted ties retain input
+order, and any tied measured optimum counts as a Top-k hit.
+
+Component joins require unique, non-null keys on each side. Aggregate repeated
+records to the intended evaluation unit before joining. Grouped regression
+tables report `n` finite pairs and `n_total` input rows; regression metrics omit
+nonfinite pairs.
 
 ---
 
@@ -114,6 +129,11 @@ Profiler CSVs with the same column layout can be obtained from the Hugging Face 
 
 `plot_prediction_effect.py` reads per-configuration files named `*_predicted.csv` under **`matrix_operator_prediction/data/`** (required columns include `type`, `duration_us`, `pred_total_us`, `m`, `n`, `k`). It writes figures and per-group metric tables to **`matrix_operator_prediction/outputs/`**.
 
+These files must contain both measured and predicted durations; downloading
+profiler measurements alone does not supply `pred_total_us`. Existing outputs
+for other configurations are retained. Missing input files raise an error
+without deleting saved results.
+
 ```bash
 cd docx/case_2/matrix_operator_prediction
 python plot_prediction_effect.py
@@ -129,4 +149,13 @@ If you use this code or the dataset, cite the Hugging Face dataset card and the 
 
 ## License
 
-See `pyproject.toml` and the repository `LICENSE` file for the applicable terms (e.g. CC BY-SA 4.0, consistent with the dataset).
+Code is licensed under [Apache-2.0](LICENSE). Profiling data and derived data
+tables use [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+## Checks
+
+After installing the core and plotting dependencies, run:
+
+```bash
+python -m unittest discover -s tests -v
+```

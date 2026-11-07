@@ -15,7 +15,8 @@ def iteration_time_metrics_ms(y_true_ms: Any, y_pred_ms: Any) -> dict[str, float
     """
     Iteration time prediction metrics (milliseconds).
 
-    Returns keys: mae_ms, smape, r2 (R² is included for consistency; primary metrics per spec are MAE and sMAPE).
+    Returns mae_ms in milliseconds, smape on a 0–200 percentage scale,
+    and dimensionless r2.
     """
     reg = regression_metrics(y_true_ms, y_pred_ms)
     return {
@@ -70,7 +71,8 @@ def memory_feasibility_classification_metrics(
     """
     Compare feasibility labels derived from true vs predicted peaks.
 
-    Labels: feasible iff peak <= threshold. Returns accuracy and balanced error rate.
+    Labels: feasible iff peak <= threshold. Returns accuracy and the fraction
+    of measured-feasible samples among finite prediction/measurement pairs.
     """
     y_true = feasibility_from_peak_mb(true_peak_mb, device_memory_threshold_mb)
     y_pred = feasibility_from_peak_mb(pred_peak_mb, device_memory_threshold_mb)

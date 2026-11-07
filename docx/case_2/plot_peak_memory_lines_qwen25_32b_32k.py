@@ -114,7 +114,7 @@ pivot = df.pivot_table(
 # ===============================
 fig, ax = plt.subplots(figsize=(8.6, 5.0))
 
-# 更接近论文风格的高对比色
+# 使用不同颜色区分并行配置。
 colors = [
     "#D62728",  # red
     "#1F77B4",  # blue
@@ -171,7 +171,7 @@ ax.tick_params(
     right=True,
 )
 
-# 保留完整边框，更像你给的第一张学术折线图
+# 显示四条坐标轴边框。
 for spine in ax.spines.values():
     spine.set_visible(True)
     spine.set_linewidth(1.2)

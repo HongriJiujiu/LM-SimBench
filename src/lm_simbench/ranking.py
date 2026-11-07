@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import operator
 from typing import Any, Iterable, Mapping
 
 import numpy as np
@@ -11,16 +12,47 @@ from .metrics import spearman_correlation
 
 
 def _as_config_order(configs: Iterable[Any]) -> list[str]:
-    return [str(c) for c in configs]
+    names = [str(c) for c in configs]
+    if not names or len(set(names)) != len(names):
+        raise ValueError("configs must be nonempty and unique")
+    return names
+
+
+def _as_time_vector(values: Any, name: str) -> np.ndarray:
+    times = np.asarray(values, dtype=float)
+    if times.ndim != 1 or not times.size:
+        raise ValueError(f"{name} must be a nonempty one-dimensional vector")
+    if not np.isfinite(times).all() or np.any(times < 0):
+        raise ValueError(f"{name} must contain finite, nonnegative times")
+    return times
+
+
+def _aligned_times(configs: Iterable[Any], true: Any, predicted: Any):
+    names = _as_config_order(configs)
+    y_true = _as_time_vector(true, "iteration_time_true_ms")
+    y_pred = _as_time_vector(predicted, "iteration_time_pred_ms")
+    if len(names) != len(y_true) or y_true.shape != y_pred.shape:
+        raise ValueError("configs, iteration_time_true_ms, iteration_time_pred_ms must align")
+    return names, y_true, y_pred
+
+
+def _validate_k(k: int) -> int:
+    try:
+        value = operator.index(k)
+    except TypeError as exc:
+        raise ValueError("k must be a positive integer") from exc
+    if value < 1:
+        raise ValueError("k must be >= 1")
+    return value
 
 
 def true_best_config(configs: Iterable[Any], iteration_time_ms: Any) -> str:
-    """Config name with minimum iteration time."""
+    """Config with minimum finite time; ties retain the input order."""
     cs = _as_config_order(configs)
-    t = np.asarray(iteration_time_ms, dtype=float)
+    t = _as_time_vector(iteration_time_ms, "iteration_time_ms")
     if len(cs) != t.size:
         raise ValueError("configs and iteration_time_ms must have the same length")
-    i = int(np.nanargmin(np.where(np.isfinite(t), t, np.inf)))
+    i = int(np.argmin(t))
     return cs[i]
 
 
@@ -33,7 +65,9 @@ def spearman_iteration_time_ranking(
 
     Same order of configs is assumed for both vectors.
     """
-    return spearman_correlation(iteration_time_true_ms, iteration_time_pred_ms)
+    true = _as_time_vector(iteration_time_true_ms, "iteration_time_true_ms")
+    predicted = _as_time_vector(iteration_time_pred_ms, "iteration_time_pred_ms")
+    return spearman_correlation(true, predicted)
 
 
 def top_k_hit_rate(
@@ -45,18 +79,14 @@ def top_k_hit_rate(
     """
     Whether the true optimal configuration (lowest true iteration time) appears
     in the top-k configurations by predicted time (lowest predicted first).
+
+    Any tied measured optimum counts as a hit. Predicted ties retain input order.
     """
-    if k < 1:
-        raise ValueError("k must be >= 1")
-    cs = _as_config_order(configs)
-    y_true = np.asarray(iteration_time_true_ms, dtype=float)
-    y_pred = np.asarray(iteration_time_pred_ms, dtype=float)
-    if len(cs) != y_true.size or y_true.shape != y_pred.shape:
-        raise ValueError("configs, iteration_time_true_ms, iteration_time_pred_ms must align")
-    best_idx = int(np.nanargmin(np.where(np.isfinite(y_true), y_true, np.inf)))
-    order = np.argsort(np.where(np.isfinite(y_pred), y_pred, np.inf), kind="mergesort")
-    topk = set(order[: min(k, len(order))].tolist())
-    return best_idx in topk
+    k = _validate_k(k)
+    _, y_true, y_pred = _aligned_times(configs, iteration_time_true_ms, iteration_time_pred_ms)
+    order = np.argsort(y_pred, kind="mergesort")
+    topk = order[: min(k, len(order))]
+    return bool(np.any(y_true[topk] == np.min(y_true)))
 
 
 def top_k_regret_ms(
@@ -69,15 +99,10 @@ def top_k_regret_ms(
     Top-k regret: among the k configs with best (lowest) predicted times, take the one
     with minimum *true* time; regret = that true time minus global minimum true time (≥ 0).
     """
-    if k < 1:
-        raise ValueError("k must be >= 1")
-    cs = _as_config_order(configs)
-    y_true = np.asarray(iteration_time_true_ms, dtype=float)
-    y_pred = np.asarray(iteration_time_pred_ms, dtype=float)
-    if len(cs) != y_true.size or y_true.shape != y_pred.shape:
-        raise ValueError("configs, iteration_time_true_ms, iteration_time_pred_ms must align")
-    true_min = float(np.nanmin(y_true))
-    order = np.argsort(np.where(np.isfinite(y_pred), y_pred, np.inf), kind="mergesort")
+    k = _validate_k(k)
+    _, y_true, y_pred = _aligned_times(configs, iteration_time_true_ms, iteration_time_pred_ms)
+    true_min = float(np.min(y_true))
+    order = np.argsort(y_pred, kind="mergesort")
     cand = order[: min(k, len(order))]
     best_true_in_topk = float(np.min(y_true[cand]))
     return max(0.0, best_true_in_topk - true_min)
@@ -91,9 +116,11 @@ def top_k_relative_regret(
     epsilon_ms: float = 1e-9,
 ) -> float:
     """Regret divided by best true iteration time: (top_k_regret_ms) / true_min."""
+    if not np.isfinite(epsilon_ms) or epsilon_ms <= 0:
+        raise ValueError("epsilon_ms must be finite and positive")
     regret = top_k_regret_ms(configs, iteration_time_true_ms, iteration_time_pred_ms, k)
     y_true = np.asarray(iteration_time_true_ms, dtype=float)
-    true_min = float(np.nanmin(y_true))
+    true_min = float(np.min(y_true))
     denom = max(true_min, epsilon_ms)
     return regret / denom
 
@@ -106,8 +133,14 @@ def strategy_ranking_summary(
 ) -> dict[str, Any]:
     """
     One-call summary: Spearman rho, per-k hit (bool), per-k regret_ms, per-k relative regret.
+
+    Inputs must be aligned, finite, nonnegative time vectors with unique config
+    names. Relative regret is a fraction; multiply by 100 for a percentage.
     """
-    ks_list = sorted({int(k) for k in ks if int(k) >= 1})
+    configs, iteration_time_true_ms, iteration_time_pred_ms = _aligned_times(
+        configs, iteration_time_true_ms, iteration_time_pred_ms
+    )
+    ks_list = sorted({_validate_k(k) for k in ks})
     rho = spearman_iteration_time_ranking(iteration_time_true_ms, iteration_time_pred_ms)
     out: dict[str, Any] = {"spearman_rho": rho}
     for k in ks_list:

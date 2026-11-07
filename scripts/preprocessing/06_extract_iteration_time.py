@@ -125,7 +125,7 @@ def process_one_model(model_dir: Path) -> None:
         summary["avg_elapsed_time_per_iteration_ms"] / 1000.0
     )
 
-    # 保留一位小数，和你给的格式一致
+    # 将毫秒值保留一位小数。
     summary["avg_elapsed_time_per_iteration_ms"] = (
         summary["avg_elapsed_time_per_iteration_ms"].round(1)
     )

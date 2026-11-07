@@ -340,13 +340,12 @@ def process_comm_time_inside_ascend_dirs(model_dirs: list[Path]):
 
 def process_already_moved_comm_time_files(model_dirs: list[Path]):
     """
-    兼容你已经运行过上一版代码的情况。
+    移除已上移至 rank 目录的 comm_time.csv 中的冗余列。
 
-    如果 comm_time.csv 已经被上移到：
+    处理以下路径中的文件：
 
     LM-SimBench/模型名称/并行配置/卡号/comm_time.csv
 
-    这里会再次检查并删除冗余列。
     """
     comm_time_files = []
     for model_dir in model_dirs:

@@ -193,8 +193,7 @@ def plot_one_config(config_df: pd.DataFrame, config_name: str):
     )
 
 
-    # Journal / NeurIPS-style color palette
-    # derived from Tableau tab20
+    # Component colors derived from Tableau tab20.
     # ===============================
     COLOR_COMPUTE = "#1F77B4"   # blue
     COLOR_COMM = "#FF7F0E"      # orange
