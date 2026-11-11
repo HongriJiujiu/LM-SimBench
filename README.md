@@ -145,7 +145,21 @@ Further layout and I/O details: [`docx/README.md`](docx/README.md).
 
 ## Citation
 
-If you use this code or the dataset, cite the Hugging Face dataset card and the accompanying paper as appropriate. See the [dataset page](https://huggingface.co/datasets/anonymous-neurips26-ljasd/LM-SimBench).
+If you use LM-SimBench in your research, please cite our [paper](https://arxiv.org/abs/2611.14285):
+
+```bibtex
+@misc{dong2026lmsimbench,
+  title         = {{LM-SimBench}: A Unified Framework, Dataset, and Benchmark for Large Language Model Training Simulation},
+  author        = {Yu Dong and Hong Li and Qiang Sun and Xu Zhou and Jinbiao Huo and Qixiu Cheng and Zhiyuan Liu},
+  year          = {2026},
+  eprint        = {2611.14285},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2611.14285}
+}
+```
+
+For dataset details, see the [Hugging Face dataset card](https://huggingface.co/datasets/anonymous-neurips26-ljasd/LM-SimBench).
 
 ## License
 
